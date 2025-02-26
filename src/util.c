@@ -51,7 +51,7 @@ char* read_line()
         }
 
         if (buffer[current_size - 1] == '\n') {
-            *(p_line + total_size - 1) = 0;
+            *(p_line + total_size - 1) = '\0';
             break;
         }
     }
