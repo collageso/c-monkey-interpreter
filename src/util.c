@@ -75,10 +75,12 @@ uint8_t get_utf8_len(unsigned char byte)
     return 1;
 }
 
-Utf8_Char utf8_char_new(const char* ch, uint8_t len)
+char* combine_str(const char* str1, size_t len1, const char* str2, size_t len2)
 {
-    return (Utf8_Char) {
-        .ch = ch,
-        .len = len
-    };
+    char* combined = (char*)safe_malloc(len1 + len2);
+
+    memcpy(combined, str1, len1);
+    memcpy(combined + len1, str2, len2);
+
+    return combined;
 }

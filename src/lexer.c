@@ -1,7 +1,6 @@
 #include "lexer.h"
 #include "util.h"
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 
 static Token token_new(Token_Kind kind, const char* literal)
@@ -14,7 +13,10 @@ static Token token_new(Token_Kind kind, const char* literal)
 
 static Utf8_Encoded peek_char(Lexer* l)
 {
-    Utf8_Encoded utf8_encoded = utf8_encoded_new(NULL, 0);
+    Utf8_Encoded utf8_encoded = {
+        .ch = { 0 },
+        .len = 0
+    };
 
     unsigned long input_len = strlen(l->input);
 
@@ -29,9 +31,8 @@ static Utf8_Encoded peek_char(Lexer* l)
         return utf8_encoded;
     }
 
-    utf8_encoded.ch = (char*)safe_malloc(ch_len);
-    utf8_encoded.len = ch_len;
     memcpy(utf8_encoded.ch, &first_byte, ch_len);
+    utf8_encoded.len = ch_len;
 
     return utf8_encoded;
 }
@@ -44,6 +45,22 @@ static Utf8_Encoded read_char(Lexer* l)
     l->next_position += utf8_encoded.len;
 
     return utf8_encoded;
+}
+
+static Token lex_combined_operator(Lexer* l, Token_Kind single, Token_Kind combined, const char* ch, uint8_t len)
+{
+    Utf8_Encoded utf8_encoded = peek_char(l);
+
+    if (utf8_encoded.len == 0) {
+        return token_new(single, ch);
+    }
+
+    if (strcmp(utf8_encoded.ch, "=") == 0) {
+        read_char(l);
+        return token_new(combined, combine_str(ch, len, utf8_encoded.ch, utf8_encoded.len));
+    }
+
+    return token_new(single, ch);
 }
 
 const char* token_kind_to_str(Token_Kind kind)
@@ -97,10 +114,7 @@ Token lexer_next(Lexer* l)
 {
     Utf8_Encoded utf8_encoded = read_char(l);
     char* ch = utf8_encoded.ch;
-
-    if (ch == NULL) {
-        return token_new(END_OF_FILE, "");
-    }
+    uint8_t len = utf8_encoded.len;
 
     switch (*ch) {
     case ',':
@@ -123,6 +137,16 @@ Token lexer_next(Lexer* l)
         return token_new(ASTERISK, ch);
     case '/':
         return token_new(SLASH, ch);
+    case '=':
+        return lex_combined_operator(l, ASSIGN, EQUAL, ch, len);
+    case '!':
+        return lex_combined_operator(l, BANG, NOT_EQUAL, ch, len);
+    case '>':
+        return lex_combined_operator(l, GREATER_THAN, GREATER_THAN_EQUAL, ch, len);
+    case '<':
+        return lex_combined_operator(l, LESS_THAN, LESS_THAN_EQUAL, ch, len);
+    case 0:
+        return token_new(END_OF_FILE, "");
     default:
         return token_new(ILLEGAL, ch);
     }
