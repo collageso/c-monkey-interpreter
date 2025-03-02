@@ -1,4 +1,5 @@
 #include "util.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,4 +58,27 @@ char* read_line()
     }
 
     return p_line;
+}
+
+uint8_t get_utf8_len(unsigned char byte)
+{
+    if ((byte & 0x80) == 0) {
+        return 1;
+    } else if ((byte & 0xE0) == 0xC0) {
+        return 2;
+    } else if ((byte & 0xF0) == 0xE0) {
+        return 3;
+    } else if ((byte & 0xF8) == 0xF0) {
+        return 4;
+    }
+
+    return 1;
+}
+
+Utf8_Char utf8_char_new(const char* ch, uint8_t len)
+{
+    return (Utf8_Char) {
+        .ch = ch,
+        .len = len
+    };
 }
