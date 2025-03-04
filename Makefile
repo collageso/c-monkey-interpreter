@@ -13,7 +13,7 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR) 
 
 $(EXECUTABLE): $(SOURCES) $(HEADERS) | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ -g $^
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE) $(ARGS)
