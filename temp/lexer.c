@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include "util.h"
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -61,6 +62,25 @@ static Token lex_combined_operator(Lexer* l, Token_Kind single, Token_Kind combi
     }
 
     return token_new(single, ch);
+}
+
+static Token lex_string(Lexer* l)
+{
+    size_t start_position = l->next_position;
+
+    while (1) {
+        Utf8_Encoded utf8_encoded = read_char(l);
+
+        if (*utf8_encoded.ch == '"') {
+            break;
+        }
+
+        if (utf8_encoded.len == 0) {
+            return token_new(ILLEGAL, "");
+        }
+    }
+
+    char* str =
 }
 
 const char* token_kind_to_str(Token_Kind kind)

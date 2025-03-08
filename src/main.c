@@ -1,4 +1,4 @@
-#include "repl.h"
+#include "repl/repl.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -9,12 +9,12 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    char* option = argv[1];
+    char* mode = argv[1];
 
-    if (strcmp(option, "--lexer") == 0) {
+    if (strcmp(mode, "--lexer") == 0) {
         start_repl("lexer", eval_lexer);
     } else {
-        fprintf(stderr, "Invalid option: %s\n", option);
+        fprintf(stderr, "Invalid mode: %s\n", mode);
     }
 
     return 0;

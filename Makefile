@@ -1,8 +1,8 @@
 CC = gcc
-CFLAGS = -std=c11 -Wall -Wextra
+CFLAGS = -std=c11 -Wall -Wextra 
 
-SOURCES = $(wildcard src/*.c)
-HEADERS = $(wildcard src/*.h)
+SOURCES = $(shell find src -name '*.c')
+HEADERS = $(shell find src -name '*.h')
 
 BUILD_DIR = build
 EXECUTABLE = $(BUILD_DIR)/c-monkey-interpreter
